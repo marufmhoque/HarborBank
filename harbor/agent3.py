@@ -147,7 +147,16 @@ def _named_in_reasons(c: Criterion, report: PolicyAuditReport) -> bool:
     return any(r.startswith(c.name) for r in report.reasons)
 
 
-def _request_text(item: str, detail: str, kind: str, impacts: tuple[str, ...], citation: str | None) -> str:
+INCOME_IMPACT = (
+    "The income on your filed tax returns helps decide the size of the loan payment your business can support, "
+    "so we need it to review the amount you asked for. We cannot use income that is only stated on the application."
+)
+
+
+def _request_text(item: str, detail: str, kind: str, impacts: tuple[str, ...], citation: str | None, explained: set[str]) -> str:
+    label = item
+    if item == "Verified net operating income":
+        label = f"{item} (the business income shown on a filed tax return)"
     if kind == "stale_document":
         limit = re.search(r"limit is (\d+) days", detail)[1]
         need = f"Please sign and date your application again. Our policy needs a signature from within the last {limit} days"
@@ -155,13 +164,19 @@ def _request_text(item: str, detail: str, kind: str, impacts: tuple[str, ...], c
         need = f"We have {match[1]} of the {match[2]} months we need"
     else:
         need = "This is not in your file"
-    if any("DSCR" in i for i in impacts):
+    if any("income" in i for i in impacts):
+        why = INCOME_IMPACT
+    elif any("DSCR" in i for i in impacts):
         why = "We need this to confirm your business income can cover the loan payments."
     elif any("Credit score" in i for i in impacts):
         why = "We need this to review your credit and set your rate."
     else:
         why = "Our policy requires this to complete your file."
-    return f"{item}: {need}{_cite(citation)}. {why}"
+    text = f"{label}: {need}{_cite(citation)}."
+    if why in explained and why == INCOME_IMPACT:
+        return text
+    explained.add(why)
+    return f"{text} {why}"
 
 
 def _build_statements(report: PolicyAuditReport) -> tuple[str, str, list[LetterStatement], list[str]]:
@@ -219,9 +234,10 @@ def _build_statements(report: PolicyAuditReport) -> tuple[str, str, list[LetterS
             add("summary", f"We asked for more information about your application, and we did not receive it by {deadline}. Our review is on pause because your file is out of date.", "tier", "pend.expires_on")
         else:
             add("summary", "Thank you for applying. We cannot finish reviewing your application until we receive the items below. No decision has been made.", "tier")
+        explained: set[str] = set()
         for m in report.missing_impacts:
             kind = "stale_document" if "limit is" in m.detail else "document"
-            add("request", _request_text(m.item, m.detail, kind, m.impacts, m.policy_citation), f"missing:{m.item}")
+            add("request", _request_text(m.item, m.detail, kind, m.impacts, m.policy_citation, explained), f"missing:{m.item}")
         if stale:
             add("next", "To continue, please send everything listed above. Your credit officer can tell you what happens next.", "tier")
         elif report.pend:
