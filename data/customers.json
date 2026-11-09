@@ -1,0 +1,5 @@
+[
+  {"customer_id": "C2001", "business": "Maple & Main Bakery LLC", "owner": "Priya Nair", "ein_on_file": "84-5551001", "credit_score": 715, "bureau_pull_date": "2026-10-28", "open_applications": ["APP-1001"]},
+  {"customer_id": "C2002", "business": "Greenleaf Mobile Detailing LLC", "owner": "Marcus Bell", "ein_on_file": "84-5552002", "credit_score": 702, "bureau_pull_date": "2026-11-04", "open_applications": []},
+  {"customer_id": "C2003", "business": "Okafor Logistics Inc.", "owner": "Daniel R. Okafor", "ein_on_file": "84-1234576", "credit_score": 690, "bureau_pull_date": "2026-11-03", "open_applications": []}
+]

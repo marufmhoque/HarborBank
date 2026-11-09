@@ -1,0 +1,35 @@
+DRAFT FOR CREDIT OFFICER REVIEW - NOT YET SENT
+
+Harbor Ridge Bank
+{{ letter_date }}
+
+{{ addressee }}
+{{ business }}
+[Applicant mailing address]
+
+Re: Your loan application {{ application_id }}
+
+Dear {{ addressee }}:
+
+{% for s in summary %}{{ s.text }}
+{% endfor %}
+{% if reasons %}{{ reasons_heading }}
+{% for s in reasons %}- {{ s.text }}
+{% endfor %}
+{% endif %}{% if terms %}Proposed loan terms:
+{% for s in terms %}- {{ s.text }}
+{% endfor %}
+{% endif %}{% if requests %}What we need from you:
+{% for s in requests %}- {{ s.text }}
+{% endfor %}
+{% endif %}{% for s in next_steps %}{{ s.text }}
+{% endfor %}
+This letter is based on Harbor Ridge Bank Small Business Loan Policy {{ policy_id }}, version {{ policy_version }}.
+
+Questions? Contact: [Credit officer name, phone and email]
+
+Harbor Ridge Bank provides credit on an equal opportunity basis.
+
+Sincerely,
+
+Harbor Ridge Bank Small Business Lending
